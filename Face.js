@@ -11,6 +11,8 @@ class Face {
         this.eyes = null;
         this.mouth = null;
         this.bounds = bounds;
+        this.updateCount = 0; // Add a counter to track the number of moves
+        this.currentSpeed = 0.5; // Initialize current speed
         this.createFace();
     }
 
@@ -29,11 +31,18 @@ class Face {
     }
 
     moveRandomly() {
-        // Parameters for motion
-        const speed = 0.1; // Adjust as needed for slower or faster movement
-        const deltaX = (Math.random() - 0.5) * speed;
-        const deltaY = (Math.random() - 0.5) * speed;
-        const deltaZ = (Math.random() - 0.5) * speed;
+        this.updateCount++; // Increment the update counter
+
+        // Check if it's time to change the speed
+        if (this.updateCount % 25 === 0) {
+            // Randomize speed between 0 and 0.5
+            this.currentSpeed = Math.random() * 0.03;
+        }
+
+        // Use the current speed for movement
+        const deltaX = (Math.random() - 0.5) * this.currentSpeed;
+        const deltaY = (Math.random() - 0.5) * this.currentSpeed;
+        const deltaZ = 2.3 * (Math.random() - 0.5) * this.currentSpeed;
     
         // Update the sphere's position
         this.sphere.position.x += deltaX;

@@ -1,3 +1,4 @@
+//EventController.js
 class EventController {
     constructor(camera, renderer, onMouseMove, onCanvasClick) {
         this.camera = camera;
@@ -9,6 +10,11 @@ class EventController {
         this.mouseY = 0;
         this.windowHalfX = window.innerWidth / 2;
         this.windowHalfY = window.innerHeight / 2;
+
+        // Bind event handlers
+        this.onDocumentMouseMoveBound = this.onDocumentMouseMove.bind(this);
+        this.onWindowResizeBound = this.onWindowResize.bind(this);
+        this.onDocumentCanvasClickBound = this.onDocumentCanvasClick.bind(this);
 
         this.addEventListeners();
     }
@@ -46,10 +52,10 @@ class EventController {
     }
 
     removeEventListeners() {
-        document.removeEventListener('mousemove', (event) => this.onDocumentMouseMove(event));
-        window.removeEventListener('resize', () => this.onWindowResize());
-        this.renderer.domElement.removeEventListener('click', (event) => this.onDocumentCanvasClick(event));
-    }    
+        document.removeEventListener('mousemove', this.onDocumentMouseMoveBound);
+        window.removeEventListener('resize', this.onWindowResizeBound);
+        this.renderer.domElement.removeEventListener('click', this.onDocumentCanvasClickBound);
+    }   
 }
 
 export { EventController };

@@ -1,7 +1,7 @@
-//ProjectileManager.js
 import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 import { Projectile } from './Projectile.js';
 import { UserScoreManager } from './UserScoreManager.js';
+import { CollisionDetector } from './CollisionDetector.js';
 
 class ProjectileManager {
     constructor(scene, camera, userScoreManager, happyFaceScoreManager) {
@@ -10,10 +10,11 @@ class ProjectileManager {
         this.projectiles = [];
         this.launchInterval = 500; // Time in milliseconds between projectile launches
         this.lastLaunchTime = Date.now();
-        this.currentMousePos = new THREE.Vector2(); // Store current mouse position
-        this.facePosition = new THREE.Vector3(); // Position of the face
+        this.currentMousePos = new THREE.Vector2();
+        this.facePosition = new THREE.Vector3();
         this.userScoreManager = userScoreManager;
         this.happyFaceScoreManager = happyFaceScoreManager;
+        this.collisionDetector = new CollisionDetector(camera);
     }
 
     setCurrentMousePosition(x, y) {
@@ -30,85 +31,60 @@ class ProjectileManager {
         raycaster.setFromCamera(this.currentMousePos, this.camera);
         const dir = raycaster.ray.direction.normalize();
         
-        // Use the updated face position
         const facePos = this.facePosition.clone();
         this.launchProjectile(facePos, dir);
         
         this.lastLaunchTime = Date.now();
     }
     
-
     launchProjectile(position, direction) {
-        let speed = 0.1; // Default speed
-        const score = this.userScoreManager.score; // Get the current user score
+        let speed = 0.1;
+        const score = this.userScoreManager.score;
 
-        // Update speed based on score with a revised formula
         if (score > 20) {
             speed = 0.1 + (score - 20) * 0.0005;
         }
 
-        // Determine the type of projectile based on the user's score
         const projectileType = score < 50 ? 'happyFace' : 'user';
-
         const projectile = new Projectile(this.scene, position, direction, speed, projectileType);
         this.scene.add(projectile.mesh);
         this.projectiles.push(projectile);
     }
 
     updateProjectiles(rendererWidth, rendererHeight) {
-        // Create a new array for projectiles that remain on screen
         const onScreenProjectiles = [];
-    
-        // Update each projectile and check if it is off-screen or collides with the cursor
+
         this.projectiles.forEach(projectile => {
             projectile.update();
-    
-            // Transform projectile's position to normalized device coordinates
-            const positionNormalized = projectile.mesh.position.clone();
-            positionNormalized.project(this.camera);
-    
-            // Check for collision with the cursor
-            const distanceToCursor = this.currentMousePos.distanceTo(new THREE.Vector2(positionNormalized.x, positionNormalized.y));
-            const collisionThreshold = 0.05; // Adjust the threshold based on your scene
-    
-            // Determine the reason for removal
-            const isOffScreen = projectile.isOffScreen(rendererWidth, rendererHeight);
-            const isColliding = distanceToCursor <= collisionThreshold;
-    
+
+            const isColliding = this.collisionDetector.checkCollisionWithCursor(projectile, this.currentMousePos);
+            const isOffScreen = this.collisionDetector.isProjectileOffScreen(projectile, rendererWidth, rendererHeight);
+
             if (isColliding) {
                 if (this.userScoreManager.score < 50) {
-                    // If colliding and user score is less than 50, increment HappyFace's score
                     this.happyFaceScoreManager.addPoint();
                 } else {
-                    // If colliding and user score is 50 or more, increment user's score
                     this.userScoreManager.addPoint();
                 }
             }
-    
+
             if (!isOffScreen && !isColliding) {
-                // Keep on-screen and non-colliding projectiles
                 onScreenProjectiles.push(projectile);
             } else {
-                // Remove off-screen or colliding projectiles
-                // Update score only if it's off-screen
                 this.removeProjectile(projectile, isOffScreen);
             }
         });
 
-        // Update the projectiles array to only include on-screen projectiles
         this.projectiles = onScreenProjectiles;
     }
 
     removeProjectile(projectile, updateScore = true) {
         this.scene.remove(projectile.mesh);
-    
-        // Update the score only if specified
+
         if (updateScore) {
             if (this.userScoreManager.score > 50) {
-                // Update HappyFaceScoreManager's score
                 this.happyFaceScoreManager.addPoint();
             } else {
-                // Increment UserScoreManager's score
                 this.userScoreManager.addPoint();
             }
         }

@@ -51,11 +51,11 @@ class SceneManager {
         // Set up the scene
         this.scene = new THREE.Scene();
 
-        // this.createBounds();
+        this.createBounds();
     }
 
     createBounds() {
-        const geometry = new THREE.BoxGeometry(20, 10, 10); // Adjust the size to match your visible area
+        const geometry = new THREE.BoxGeometry(16.5, 7.5, 0); // Adjust the size to match your visible area
         const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
         this.boundsBox = new THREE.Mesh(geometry, material);
         this.scene.add(this.boundsBox);
