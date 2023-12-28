@@ -5,6 +5,8 @@ import { EventController } from './EventController.js';
 import { ProjectileManager } from './ProjectileManager.js'; // Import ProjectileManager
 import { UserScoreManager } from './UserScoreManager.js'; // Import UserScoreManager
 import { HappyFaceScoreManager } from './HappyFaceScoreManager.js';
+import { animate } from './AnimationManager.js'; // Import the animate function
+import { handleMouseMove } from './MouseMoveHandler.js'; // Import the handleMouseMove function
 
 class SceneManager {
     constructor() {
@@ -30,7 +32,7 @@ class SceneManager {
         // Now set the face object correctly in UserScoreManager
         this.userScoreManager.face = this.face;
         
-        this.happyFaceScoreManager = new HappyFaceScoreManager();
+        this.happyFaceScoreManager = new HappyFaceScoreManager(this.face);
         
         this.projectileManager = new ProjectileManager(this.scene, this.camera, this.userScoreManager, this.happyFaceScoreManager);
 
@@ -38,12 +40,11 @@ class SceneManager {
         this.eventController = new EventController(
             this.camera, 
             this.renderer, 
-            this.handleMouseMove.bind(this), 
-            this.handleCanvasClick.bind(this)
+            (mouseX, mouseY) => handleMouseMove(mouseX, mouseY, this.eventController, this.face, this.projectileManager), 
         );
 
         // Begin the animation loop
-        this.animate();
+        animate(this);  // Pass the SceneManager object to the animate function
     }
 
     initScene() {
@@ -54,7 +55,7 @@ class SceneManager {
     }
 
     createBounds() {
-        const geometry = new THREE.BoxGeometry(10, 4.5, 4); // Adjust the size to match your visible area
+        const geometry = new THREE.BoxGeometry(20, 10, 10); // Adjust the size to match your visible area
         const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
         this.boundsBox = new THREE.Mesh(geometry, material);
         this.scene.add(this.boundsBox);
@@ -79,47 +80,5 @@ class SceneManager {
             this.renderer.setSize(window.innerWidth, window.innerHeight);
         });
     }
-
-    handleMouseMove(mouseX, mouseY) {
-        // Normalize the mouse coordinates (range -1 to 1)
-        const normMouseX = (mouseX / this.eventController.windowHalfX);
-        const normMouseY = -(mouseY / this.eventController.windowHalfY);
-
-        // Update the current mouse position in ProjectileManager
-        this.projectileManager.setCurrentMousePosition(normMouseX, normMouseY);
-    
-        // Use the mouseX and mouseY provided by EventController
-        // Update the face rotation based on mouse movement
-        if (this.face && this.face.sphere) {
-            this.face.sphere.rotation.y = mouseX / (2 * this.eventController.windowHalfX);
-            this.face.sphere.rotation.x = mouseY / (2 * this.eventController.windowHalfY);
-        }
-    }
-
-    handleCanvasClick(event) {
-        // Handle canvas click logic
-        // This method is called when the canvas is clicked
-        // You can add specific actions here if needed
-    }
-
-    animate() {
-        requestAnimationFrame(this.animate.bind(this));
-    
-        // Move the face randomly
-        if (this.face) {
-            this.face.moveRandomly();
-            // Update the face position in ProjectileManager
-            this.projectileManager.setFacePosition(this.face.sphere.position.x, this.face.sphere.position.y, this.face.sphere.position.z);
-        }
-        // Update the projectile manager
-        this.projectileManager.maybeLaunchProjectile();
-    
-        // Pass the renderer's dimensions to the updateProjectiles method
-        this.projectileManager.updateProjectiles(this.renderer.domElement.width, this.renderer.domElement.height);
-    
-        // Render the scene with the camera
-        this.renderer.render(this.scene, this.camera);
-    }
 }
-
 export { SceneManager };

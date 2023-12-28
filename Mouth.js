@@ -28,7 +28,7 @@ class Mouth {
     updateColorBasedOnScore() {
         const score = this.userScoreManager.score;
         // Calculate the red component based on the score, ranging from 1 (at score 0) to 0 (at score 200)
-        const redIntensity = 1 - Math.min(score / 200, 1);
+        const redIntensity = 1 - Math.min(score / 150, 1);
     
         // Create a new color with decreasing red, and green and blue always at 0
         const color = new THREE.Color(redIntensity, 0, 0); // Red decreases, green and blue are 0

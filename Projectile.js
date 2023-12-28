@@ -2,9 +2,21 @@
 import * as THREE from 'https://unpkg.com/three/build/three.module.js';
 
 class Projectile {
-    constructor(scene, startPosition, direction, speed) {
+    constructor(scene, startPosition, direction, speed, type) {
         const geometry = new THREE.SphereGeometry(0.1, 32, 32);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+
+        // Determine color based on projectile type
+        let color;
+        if (type === 'happyFace') {
+            color = 0xff0000; // Red for happy face points
+        } else if (type === 'user') {
+            color = 0x00ff00; // Green for user points
+        } else {
+            color = 0xffffff; // Default color (white) if type is not specified
+        }
+
+        // Correctly use the determined color
+        const material = new THREE.MeshBasicMaterial({ color: color });
         this.mesh = new THREE.Mesh(geometry, material);
         this.speed = speed; // Store the speed
         this.direction = direction.normalize(); // Normalize the direction

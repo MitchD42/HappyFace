@@ -47,7 +47,10 @@ class ProjectileManager {
             speed = 0.1 + (score - 20) * 0.0005;
         }
 
-        const projectile = new Projectile(this.scene, position, direction, speed);
+        // Determine the type of projectile based on the user's score
+        const projectileType = score < 50 ? 'happyFace' : 'user';
+
+        const projectile = new Projectile(this.scene, position, direction, speed, projectileType);
         this.scene.add(projectile.mesh);
         this.projectiles.push(projectile);
     }
@@ -73,8 +76,13 @@ class ProjectileManager {
             const isColliding = distanceToCursor <= collisionThreshold;
     
             if (isColliding) {
-                // If the projectile collides with the cursor, increment HappyFace's score
-                this.happyFaceScoreManager.addPoint();
+                if (this.userScoreManager.score < 50) {
+                    // If colliding and user score is less than 50, increment HappyFace's score
+                    this.happyFaceScoreManager.addPoint();
+                } else {
+                    // If colliding and user score is 50 or more, increment user's score
+                    this.userScoreManager.addPoint();
+                }
             }
     
             if (!isOffScreen && !isColliding) {
@@ -87,19 +95,22 @@ class ProjectileManager {
             }
         });
 
-        
-    
         // Update the projectiles array to only include on-screen projectiles
         this.projectiles = onScreenProjectiles;
     }
-    
 
     removeProjectile(projectile, updateScore = true) {
         this.scene.remove(projectile.mesh);
     
         // Update the score only if specified
         if (updateScore) {
-            this.userScoreManager.addPoint(); // Increment the score
+            if (this.userScoreManager.score > 50) {
+                // Update HappyFaceScoreManager's score
+                this.happyFaceScoreManager.addPoint();
+            } else {
+                // Increment UserScoreManager's score
+                this.userScoreManager.addPoint();
+            }
         }
     }
 

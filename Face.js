@@ -49,7 +49,7 @@ class Face {
 
     updateColorBasedOnScore() {
         const score = this.userScoreManager.score;
-        const greenIntensity = 1 - Math.min(score / 200, 1); // Decreases from 1 to 0 as score increases
+        const greenIntensity = 1 - Math.min(score / 100, 1); // Decreases from 1 to 0 as score increases
 
         // Create a new color with full red, decreasing green, and no blue
         const color = new THREE.Color(1, greenIntensity, 0); // Red stays at 1, green decreases, blue is 0
@@ -57,6 +57,13 @@ class Face {
 
         // Update the mouth's color based on the score
         this.mouth.updateColorBasedOnScore();
+    }
+
+    resetFace() {
+        // Logic to reset the face
+        // For example, resetting the position:
+        this.sphere.position.set(0, 0, 0);
+        // You can add more reset logic here as needed
     }
     
 }
