@@ -1,6 +1,25 @@
 {
   "dependencies": {
     "dotenv": "^16.3.1",
-    "openai": "^4.0.0"
-  }
+    "openai": "^4.0.0",
+    "three": "^0.161.0"
+  },
+  "name": "happyface",
+  "version": "1.0.0",
+  "main": "AnimationManager.js",
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@types/three": "^0.161.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }

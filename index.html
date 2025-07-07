@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Smiley Face</title>
-    <style>
-        body { margin: 0; }
-        canvas { display: block; }
-    </style>
+    <title>HappyFace Game - Modernized</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <script type="module">
-        import { SceneManager } from './SceneManager.js';
-
-        new SceneManager();
-    </script>
+    <div id="game-container">
+        <button id="pause-button">⏸️ PAUSE</button>
+        <div id="pause-overlay">
+            <div id="pause-message">
+                GAME PAUSED<br>
+                <small style="font-size: 24px;">Click RESUME or press SPACEBAR to continue</small>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
