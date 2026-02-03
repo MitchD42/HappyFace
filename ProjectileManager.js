@@ -95,6 +95,13 @@ class ProjectileManager {
             this.launchProjectileFromFace();
         }
     }
+
+    clearAllProjectiles() {
+        this.projectiles.forEach(projectile => {
+            this.scene.remove(projectile.mesh);
+        });
+        this.projectiles = [];
+    }
 }
 
 export { ProjectileManager };

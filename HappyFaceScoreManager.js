@@ -1,6 +1,7 @@
 class HappyFaceScoreManager {
-    constructor(face) {
-        this.face = face; // Store reference to the Face
+    constructor(face, sceneManager) {
+        this.face = face;
+        this.sceneManager = sceneManager;
         this.score = 0;
         this.scoreElement = this.createScoreElement();
     }
@@ -9,35 +10,54 @@ class HappyFaceScoreManager {
         const scoreElement = document.createElement('div');
         scoreElement.style.position = 'absolute';
         scoreElement.style.top = '10px';
-        scoreElement.style.left = '0px'; // Position on the other side of the screen
+        scoreElement.style.left = '10px';
         scoreElement.style.color = 'white';
         scoreElement.style.fontSize = '40px';
-        scoreElement.innerHTML = `Happy Face Score: ${this.score}`;
+        scoreElement.style.fontFamily = 'Segoe UI, Arial, sans-serif';
+        scoreElement.style.transition = 'transform 0.1s, color 0.1s';
+        scoreElement.innerHTML = `Happy Face: ${this.score}`;
         document.body.appendChild(scoreElement);
         return scoreElement;
     }
 
     addPoint() {
         this.score++;
-        this.scoreElement.innerHTML = `Happy Face Score: ${this.score}`;
+        this.scoreElement.innerHTML = `Happy Face: ${this.score}`;
 
         // Reset the face every 50 points
         if (this.score % 50 === 0) {
             this.face.resetFace();
         }
 
-        // Change the score color to green and then back to white
         this.flashScoreColor();
+        
+        // Trigger hit effect on screen
+        if (window.triggerHitEffect) {
+            window.triggerHitEffect();
+        }
+        
+        // Check win condition - happy face wins at 100 points
+        if (this.score >= 100 && this.sceneManager) {
+            this.sceneManager.endGame();
+        }
     }
 
     flashScoreColor() {
-        // Change color to green
-        this.scoreElement.style.color = 'green';
+        // More visible flash - red since it's bad for the player
+        this.scoreElement.style.color = '#FF4444';
+        this.scoreElement.style.transform = 'scale(1.3)';
+        this.scoreElement.style.textShadow = '0 0 20px #FF4444';
 
-        // Set a timeout to change the color back to white after a short duration
         setTimeout(() => {
             this.scoreElement.style.color = 'white';
-        }, 100); // Adjust the duration (500ms) as needed
+            this.scoreElement.style.transform = 'scale(1)';
+            this.scoreElement.style.textShadow = 'none';
+        }, 200);
+    }
+
+    reset() {
+        this.score = 0;
+        this.scoreElement.innerHTML = `Happy Face: ${this.score}`;
     }
 }
 

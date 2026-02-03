@@ -1,9 +1,10 @@
 class UserScoreManager {
-    constructor(face) {
-        this.face = face; // store reference to the Face
+    constructor(face, sceneManager) {
+        this.face = face;
+        this.sceneManager = sceneManager;
         this.score = 0;
         this.scoreElement = this.createScoreElement();
-        this.goalMessageElement = null; // Initialize to null
+        this.goalMessageElement = null;
     }
 
     createScoreElement() {
@@ -13,6 +14,8 @@ class UserScoreManager {
         scoreElement.style.right = '10px';
         scoreElement.style.color = 'white';
         scoreElement.style.fontSize = '40px';
+        scoreElement.style.fontFamily = 'Segoe UI, Arial, sans-serif';
+        scoreElement.style.transition = 'transform 0.1s, color 0.1s';
         scoreElement.innerHTML = `User Score: ${this.score}`;
         document.body.appendChild(scoreElement);
         return scoreElement;
@@ -28,30 +31,49 @@ class UserScoreManager {
             this.face.resetFace();
         }
 
-        this.manageGoalMessage(); // Manage the goal message based on the current score
-
-        // Change the score color to green and then back to white
+        this.manageGoalMessage();
         this.flashScoreColor();
+        
+        // Check for new high score and show indicator
+        if (this.sceneManager && this.score > this.sceneManager.getHighScore()) {
+            this.showNewHighScoreIndicator();
+        }
     }
 
     flashScoreColor() {
-        // Change color to green
-        this.scoreElement.style.color = 'green';
+        // More visible flash effect
+        this.scoreElement.style.color = '#00FF00';
+        this.scoreElement.style.transform = 'scale(1.3)';
+        this.scoreElement.style.textShadow = '0 0 20px #00FF00';
 
-        // Set a timeout to change the color back to white after a short duration
         setTimeout(() => {
             this.scoreElement.style.color = 'white';
-        }, 100); // Adjust the duration (500ms) as needed
+            this.scoreElement.style.transform = 'scale(1)';
+            this.scoreElement.style.textShadow = 'none';
+        }, 200);
+    }
+
+    showNewHighScoreIndicator() {
+        if (!this.newHighScoreElement) {
+            this.newHighScoreElement = document.createElement('div');
+            this.newHighScoreElement.style.position = 'absolute';
+            this.newHighScoreElement.style.top = '100px';
+            this.newHighScoreElement.style.right = '10px';
+            this.newHighScoreElement.style.color = '#FFD700';
+            this.newHighScoreElement.style.fontSize = '20px';
+            this.newHighScoreElement.style.fontFamily = 'Segoe UI, Arial, sans-serif';
+            this.newHighScoreElement.style.animation = 'pulse 0.5s ease-in-out infinite alternate';
+            this.newHighScoreElement.innerHTML = '🎉 NEW HIGH SCORE!';
+            document.body.appendChild(this.newHighScoreElement);
+        }
     }
 
     manageGoalMessage() {
         if (this.score >= 40 && this.score <= 60) {
             if (!this.goalMessageElement) {
-                console.log('Creating goal message element');
                 this.goalMessageElement = this.createGoalMessageElement();
             }
         } else if (this.goalMessageElement) {
-            console.log('Removing goal message element');
             this.goalMessageElement.remove();
             this.goalMessageElement = null;
         }
@@ -60,14 +82,34 @@ class UserScoreManager {
     createGoalMessageElement() {
         const goalMessageElement = document.createElement('div');
         goalMessageElement.style.position = 'absolute';
-        goalMessageElement.style.top = '100px'; // Adjust position as needed
+        goalMessageElement.style.top = '150px';
         goalMessageElement.style.left = '50%';
         goalMessageElement.style.transform = 'translateX(-50%)';
-        goalMessageElement.style.color = 'red';
-        goalMessageElement.style.fontSize = '80px';
-        goalMessageElement.innerHTML = 'After 50 user points the goal is to catch the projectiles.';
+        goalMessageElement.style.color = '#4ECDC4';
+        goalMessageElement.style.fontSize = '28px';
+        goalMessageElement.style.fontFamily = 'Segoe UI, Arial, sans-serif';
+        goalMessageElement.style.textAlign = 'center';
+        goalMessageElement.style.background = 'rgba(0,0,0,0.7)';
+        goalMessageElement.style.padding = '15px 25px';
+        goalMessageElement.style.borderRadius = '10px';
+        goalMessageElement.innerHTML = '🎯 After 50 points: CATCH the projectiles!';
         document.body.appendChild(goalMessageElement);
         return goalMessageElement;
+    }
+
+    reset() {
+        this.score = 0;
+        this.scoreElement.innerHTML = `User Score: ${this.score}`;
+        
+        if (this.goalMessageElement) {
+            this.goalMessageElement.remove();
+            this.goalMessageElement = null;
+        }
+        
+        if (this.newHighScoreElement) {
+            this.newHighScoreElement.remove();
+            this.newHighScoreElement = null;
+        }
     }
 }
 
